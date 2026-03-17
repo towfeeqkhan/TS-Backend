@@ -4,9 +4,9 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "tsx watch --env-file=.env src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node --env-file=.env dist/server.js"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +19,6 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "dotenv": "^17.3.1",
     "express": "^5.2.1"
   }
 }
