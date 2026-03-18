@@ -1,29 +1,17 @@
 import { Request, Response } from "express";
-
-interface Todo {
-  id: number;
-  title: string;
-  completed: boolean;
-}
-
-let todos: Todo[] = [
-  {
-    id: 1,
-    title: "Gym",
-    completed: false,
-  },
-];
+import Todo from "../models/todo.model.js";
 
 // Get all todos
-export const getTodos = (req: Request, res: Response) => {
+export const getTodos = async (req: Request, res: Response) => {
+  const todos = await Todo.find();
   res.json(todos);
 };
 
 // Get single todo
-export const getTodoById = (req: Request, res: Response) => {
-  const id = Number(req.params.id);
+export const getTodoById = async (req: Request, res: Response) => {
+  const id = req.params.id;
 
-  const todo = todos.find((t) => t.id === id);
+  const todo = await Todo.findById(id);
 
   if (!todo) {
     return res.status(404).json({ message: "Todo not found" });
@@ -33,49 +21,43 @@ export const getTodoById = (req: Request, res: Response) => {
 };
 
 // Create Todo
-export const createTodo = (req: Request, res: Response) => {
+export const createTodo = async (req: Request, res: Response) => {
   const { title } = req.body;
 
-  const newTodo: Todo = {
-    id: Date.now(),
+  const todo = await Todo.create({
     title,
-    completed: false,
-  };
+  });
 
-  todos.push(newTodo);
-
-  res.status(201).json(newTodo);
+  res.status(201).json(todo);
 };
 
 // Update Todo
-export const updateTodo = (req: Request, res: Response) => {
-  const id = Number(req.params.id);
+export const updateTodo = async (req: Request, res: Response) => {
+  const id = req.params.id;
   const { title, completed } = req.body;
 
-  const todo = todos.find((t) => t.id === id);
+  const updatedTodo = await Todo.findByIdAndUpdate(
+    id,
+    { title, completed },
+    { returnDocument: "after", runValidators: true },
+  );
 
-  if (!todo) {
+  if (!updatedTodo) {
     return res.status(404).json({ message: "Todo not found" });
   }
 
-  if (title !== undefined) todo.title = title;
-  if (completed !== undefined) todo.completed = completed;
-
-  res.json(todo);
+  res.json(updatedTodo);
 };
 
 // Delete Todo
+export const deleteTodo = async (req: Request, res: Response) => {
+  const id = req.params.id;
 
-export const deleteTodo = (req: Request, res: Response) => {
-  const id = Number(req.params.id);
+  const deletedTodo = await Todo.findByIdAndDelete(id);
 
-  const index = todos.findIndex((t) => t.id === id);
-
-  if (index === -1) {
+  if (!deletedTodo) {
     return res.status(404).json({ message: "Todo not found" });
   }
 
-  const deleted = todos.splice(index, 1);
-
-  res.json({ message: "Todo deleted", todo: deleted[0] });
+  res.json({ message: "Todo deleted successfully" });
 };

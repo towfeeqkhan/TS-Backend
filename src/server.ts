@@ -1,5 +1,8 @@
 import express, { Request, Response } from "express";
 import todoRoutes from "./routes/todo.routes.js";
+import connectDB from "./config/db.js";
+
+await connectDB();
 
 const app = express();
 
