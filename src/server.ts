@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import todoRoutes from "./routes/todo.routes.js";
 import connectDB from "./config/db.js";
+import errorHandler from "./middleware/error.middleware.js";
 
 await connectDB();
 
@@ -14,6 +15,8 @@ app.use("/api/todos", todoRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.send("API is live");
 });
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 

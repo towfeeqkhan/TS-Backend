@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Todo from "../models/todo.model.js";
+import AppError from "../utils/AppError.js";
 
 // Get all todos
 export const getTodos = async (req: Request, res: Response) => {
@@ -14,7 +15,7 @@ export const getTodoById = async (req: Request, res: Response) => {
   const todo = await Todo.findById(id);
 
   if (!todo) {
-    return res.status(404).json({ message: "Todo not found" });
+    throw new AppError("Todo not found", 404);
   }
 
   res.json(todo);
@@ -43,7 +44,7 @@ export const updateTodo = async (req: Request, res: Response) => {
   );
 
   if (!updatedTodo) {
-    return res.status(404).json({ message: "Todo not found" });
+    throw new AppError("Todo not found", 404);
   }
 
   res.json(updatedTodo);
@@ -56,7 +57,7 @@ export const deleteTodo = async (req: Request, res: Response) => {
   const deletedTodo = await Todo.findByIdAndDelete(id);
 
   if (!deletedTodo) {
-    return res.status(404).json({ message: "Todo not found" });
+    throw new AppError("Todo not found", 404);
   }
 
   res.json({ message: "Todo deleted successfully" });
