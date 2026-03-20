@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
 import Todo from "../models/todo.model.js";
 import AppError from "../utils/AppError.js";
+import {
+  createTodoSchema,
+  updateTodoSchema,
+} from "../validators/todo.validator.js";
+import { z } from "zod";
+import { formatZodError } from "../utils/formatZodError.js";
 
 // Get all todos
 export const getTodos = async (req: Request, res: Response) => {
@@ -23,7 +29,18 @@ export const getTodoById = async (req: Request, res: Response) => {
 
 // Create Todo
 export const createTodo = async (req: Request, res: Response) => {
-  const { title } = req.body;
+  const validation = createTodoSchema.safeParse(req.body);
+
+  if (!validation.success) {
+    console.log(z.prettifyError(validation.error));
+
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: formatZodError(validation.error),
+    });
+  }
+
+  const { title } = validation.data;
 
   const todo = await Todo.create({
     title,
@@ -34,8 +51,19 @@ export const createTodo = async (req: Request, res: Response) => {
 
 // Update Todo
 export const updateTodo = async (req: Request, res: Response) => {
+  const validation = updateTodoSchema.safeParse(req.body);
+
+  if (!validation.success) {
+    console.log(z.prettifyError(validation.error));
+
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: formatZodError(validation.error),
+    });
+  }
+
   const id = req.params.id;
-  const { title, completed } = req.body;
+  const { title, completed } = validation.data;
 
   const updatedTodo = await Todo.findByIdAndUpdate(
     id,
